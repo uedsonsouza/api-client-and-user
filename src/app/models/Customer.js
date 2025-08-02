@@ -27,7 +27,7 @@ class Customer extends Model {
                     singular: "customer",
                     plural: "customers",
                 },
-                tableName: "customers",
+                tableName: "abobrinha",
             },
         );
     }

@@ -7,7 +7,7 @@
     "dev": "nodemon ./src/server.js",
     "queue": "nodemon ./src/queue.js",
     "playground": "nodemon ./src/playground.js",
-    "test": "jest --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests"
   },
   "dependencies": {
     "@sentry/node": "^10.0.0",
@@ -27,7 +27,10 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.27.0",
+    "@types/jest": "^30.0.0",
+    "babel-jest": "^30.0.5",
     "eslint": "^9.27.0",
     "globals": "^16.1.0",
     "jest": "^30.0.5",

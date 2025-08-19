@@ -6,12 +6,14 @@ import * as Sentry from "@sentry/node";
 import "./database";
 import "dotenv/config";
 import sentryConfig from "./config/sentry";
+import setupSwagger from "./config/swagger"
 
 class App {
     constructor() {
         this.server = express();
         Sentry.init(sentryConfig);
         this.middlewares();
+        this.docs();
         this.routes();
         this.exceptionHandler();
     }
@@ -19,6 +21,9 @@ class App {
     middlewares() { 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: false }));
+    }
+    docs() {
+        setupSwagger(this.server)
     }
 
     routes() {

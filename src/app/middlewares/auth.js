@@ -8,6 +8,10 @@ export default async (req, res, next) => {
     if (!authHeader) {
         return res.status(401).json({ error: 'Token not provided' });
     }
+    const [scheme, token] = authHeader.split(' ');
+    if (scheme !== 'Bearer' || !token) {
+        return res.status(401).json({ error: 'Token malformatted' });
+    }
 
     const [, parts] = authHeader.split(' ');
 

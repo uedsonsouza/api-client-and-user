@@ -72,12 +72,6 @@ npx sequelize-cli db:migrate
 
 (Usa config em `src/config/database.js`)
 
-### Problemas a corrigir
-
-- Model Customer usa `tableName: "abobrinha"` mas migration cria `customers`.
-- Down da migration `20250518140012-create-contacts` remove tabela errada.
-- Coluna `users.name` criada como INTEGER e depois alterada para STRING (cuidado ao migrar dados já existentes).
-
 ## Variáveis de Ambiente
 
 Copiar arquivo de exemplo:
@@ -173,7 +167,3 @@ Listar clientes (autenticado):
 GET /customers?name=acme&status=ACTIVE
 Authorization: Bearer <token>
 ```
-
-## Licença
-
-MIT.

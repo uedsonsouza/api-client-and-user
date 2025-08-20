@@ -1,3 +1,4 @@
+import { logger } from "@sentry/node";
 import Contacts from "../models/Contacts";
 import Customer from "../models/Customer";
 import Op from "sequelize";
@@ -5,7 +6,8 @@ import * as Yup from "yup";
 
 class ContactsController {
     async index(req, res) {
-        const {
+        try {
+            const {
             name,
             email,
             status,
@@ -104,8 +106,11 @@ class ContactsController {
             where,
             offset: limit * page - limit,
         });
-        console.log("data ====>", data);
         return res.status(200).json(data);
+        } catch (err) {
+            logger.info("error or search for registered users", err)
+            return res.status(500).json({ error: "Error search contacts" });
+        }
     }
 
     async show(req, res) {
@@ -131,43 +136,44 @@ class ContactsController {
             return res.status(400).json({ error: "Invalid contact data" });
         }
 
-        if (!schema) {
+        try {
+            const contact = await Contacts.create({
+                customer_id: req.params.customer_id,
+                ...req.body,
+            });
+            return res.status(201).json(contact);
+        } catch (err) {
+            logger.error('erro na criacao do contato', err)
             return res.status(500).json({ error: "Error creating contact" });
         }
-
-        const contact = await Contacts.create({
-            customer_id: req.params.customer_id,
-            ...req.body,
-        });
-
-        return res.status(201).json(contact);
     }
 
     async update(req, res) {
-        const schema = Yup.object().shape({
-            name: Yup.string(),
-            email: Yup.string().email(),
-            status: Yup.string().uppercase(),
-        });
+        try {
+            const schema = Yup.object().shape({
+                name: Yup.string(),
+                email: Yup.string().email(),
+                status: Yup.string().uppercase(),
+            });
 
-        if (!(await schema.isValid(req.body))) {
-            return res.status(400).json({ error: "Invalid contact data" });
+            if (!(await schema.isValid(req.body))) {
+                return res.status(400).json({ error: "Invalid contact data" });
+            }
+
+            const contact = await Contacts.findOne({
+                where: { id: req.params.id, customer_id: req.params.customer_id },
+                attributes: { exclude: ["customer_id", "customerId"] },
+            });
+            if (!contact) {
+                return res.status(404).json({ error: "Contact not found" });
+            }
+
+            await contact.update(req.body);
+            return res.status(200).json(contact);
+        } catch (err) {
+            logger.error('Erro na atualização do contato', err)
+            return res.status(500).json({ error: "Error updating contact" });
         }
-
-        if (!schema) {
-            return res.status(500).json({ error: "Error creating contact" });
-        }
-
-        const contact = await Contacts.findOne({
-            where: { id: req.params.id, customer_id: req.params.customer_id },
-            attributes: { exclude: ["customer_id", "customerId"] },
-        });
-        if (!contact) {
-            return res.status(404).json({ error: "Contact not found" });
-        }
-
-        await contact.update(req.body);
-        return res.status(200).json(contact);
     }
 
     async destroy(req, res) {

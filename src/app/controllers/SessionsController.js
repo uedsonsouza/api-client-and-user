@@ -7,13 +7,8 @@ class SessionController {
         const { email, password } = req.body;
 
         const user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(401).json({ error: "Token not provided" });
-        }
-
-        const isPasswordValid = await user.checkPassword(password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: "Invalid password" });
+        if (!user || !await user.checkPassword(password)) {
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         const { id, name } = user;

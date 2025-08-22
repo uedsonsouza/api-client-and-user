@@ -1,6 +1,6 @@
 import Customer from "../models/Customer";
 import Contacts from "../models/Contacts";
-import Op from "sequelize";
+import { Op } from "sequelize";
 import * as Yup from "yup";
 
 class CustomersController {

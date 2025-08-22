@@ -1,7 +1,7 @@
 import { logger } from "@sentry/node";
 import Contacts from "../models/Contacts";
 import Customer from "../models/Customer";
-import Op from "sequelize";
+import { Op } from "sequelize";
 import * as Yup from "yup";
 
 class ContactsController {

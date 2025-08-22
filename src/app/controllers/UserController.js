@@ -1,4 +1,4 @@
-import Op from "sequelize";
+import { Op } from "sequelize";
 import * as Yup from "yup";
 // import { parseISO } from "date-fns";
 import WelcomeEmailJob from "../jobs/WelcomeEmailJob.js";

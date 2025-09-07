@@ -1,0 +1,1371 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API Clientes e Usuários",
+      "version": "1.0.0",
+      "description": "API para gerenciamento de clientes, contatos e usuários com autenticação JWT",
+      "contact": {
+        "name": "Suporte da API",
+        "email": "test@test.com"
+      }
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000",
+        "description": "Servidor de desenvolvimento"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "Token JWT obtido através do endpoint /sessions"
+        }
+      },
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "ID único do usuário"
+            },
+            "name": {
+              "type": "string",
+              "description": "Nome completo do usuário",
+              "example": "João Silva"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Email do usuário",
+              "example": "joao@email.com"
+            },
+            "file_id": {
+              "type": "integer",
+              "description": "ID do arquivo de avatar do usuário",
+              "nullable": true
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data de criação do usuário"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data da última atualização do usuário"
+            }
+          }
+        },
+        "Customer": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "ID único do cliente"
+            },
+            "name": {
+              "type": "string",
+              "description": "Nome da empresa/cliente",
+              "example": "Empresa ABC Ltda"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Email do cliente",
+              "example": "contato@empresaabc.com"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["ACTIVE", "ARCHIVED"],
+              "description": "Status do cliente",
+              "example": "ACTIVE"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data de criação do cliente"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data da última atualização do cliente"
+            }
+          }
+        },
+        "Contact": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "ID único do contato"
+            },
+            "name": {
+              "type": "string",
+              "description": "Nome do contato",
+              "example": "Maria Santos"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Email do contato",
+              "example": "maria@empresaabc.com"
+            },
+            "phone": {
+              "type": "string",
+              "description": "Telefone do contato",
+              "example": "(11) 99999-9999"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["ACTIVE", "ARCHIVED"],
+              "description": "Status do contato",
+              "example": "ACTIVE"
+            },
+            "customer_id": {
+              "type": "integer",
+              "description": "ID do cliente ao qual o contato pertence"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data de criação do contato"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data da última atualização do contato"
+            }
+          }
+        },
+        "File": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "ID único do arquivo"
+            },
+            "name": {
+              "type": "string",
+              "description": "Nome original do arquivo",
+              "example": "avatar.jpg"
+            },
+            "path": {
+              "type": "string",
+              "description": "Caminho do arquivo no servidor",
+              "example": "/uploads/avatar_1234567890.jpg"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data de criação do arquivo"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Data da última atualização do arquivo"
+            }
+          }
+        },
+        "Error": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Mensagem de erro",
+              "example": "Usuário não encontrado"
+            },
+            "details": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Detalhes adicionais do erro"
+            }
+          }
+        },
+        "ValidationError": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "string",
+              "description": "Mensagem de erro de validação",
+              "example": "Dados inválidos"
+            },
+            "details": {
+              "type": "object",
+              "description": "Detalhes dos campos com erro",
+              "example": {
+                "email": "Email é obrigatório",
+                "password": "Senha deve ter pelo menos 6 caracteres"
+              }
+            }
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "Auth",
+        "description": "Endpoints de autenticação"
+      },
+      {
+        "name": "Users",
+        "description": "Gerenciamento de usuários"
+      },
+      {
+        "name": "Customers",
+        "description": "Gerenciamento de clientes"
+      },
+      {
+        "name": "Contacts",
+        "description": "Gerenciamento de contatos"
+      },
+      {
+        "name": "Files",
+        "description": "Upload e gerenciamento de arquivos"
+      }
+    ],
+    "paths": {
+      "/sessions": {
+        "post": {
+          "summary": "Autentica usuário e retorna token JWT",
+          "description": "Endpoint para autenticação de usuários. Retorna um token JWT válido por 7 dias.",
+          "tags": ["Auth"],
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["email", "password"],
+                  "properties": {
+                    "email": { 
+                      "type": "string", 
+                      "format": "email",
+                      "description": "Email do usuário",
+                      "example": "joao@email.com"
+                    },
+                    "password": { 
+                      "type": "string",
+                      "description": "Senha do usuário",
+                      "example": "123456"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { 
+              "description": "Login bem sucedido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      },
+                      "token": {
+                        "type": "string",
+                        "description": "Token JWT para autenticação",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": { 
+              "description": "Credenciais inválidas",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Dados inválidos",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users": {
+        "post": {
+          "summary": "Cria usuário (público para bootstrap)",
+          "description": "Endpoint público para criação do primeiro usuário do sistema. Não requer autenticação.",
+          "tags": ["Users"],
+          "security": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["name", "email", "password", "passwordConfirmation"],
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome completo do usuário",
+                      "example": "João Silva"
+                    },
+                    "email": { 
+                      "type": "string", 
+                      "format": "email",
+                      "description": "Email do usuário",
+                      "example": "joao@email.com"
+                    },
+                    "password": { 
+                      "type": "string",
+                      "description": "Senha do usuário (mínimo 6 caracteres)",
+                      "example": "123456"
+                    },
+                    "passwordConfirmation": { 
+                      "type": "string",
+                      "description": "Confirmação da senha",
+                      "example": "123456"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": { 
+              "description": "Usuário criado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      },
+                      "token": {
+                        "type": "string",
+                        "description": "Token JWT para autenticação",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "summary": "Lista usuários",
+          "description": "Retorna uma lista paginada de todos os usuários do sistema.",
+          "tags": ["Users"],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "page",
+              "schema": { "type": "integer", "default": 1 },
+              "description": "Número da página"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": { "type": "integer", "default": 10 },
+              "description": "Quantidade de itens por página"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Lista de usuários",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "pagination": {
+                        "type": "object",
+                        "properties": {
+                          "page": { "type": "integer" },
+                          "limit": { "type": "integer" },
+                          "total": { "type": "integer" },
+                          "pages": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Detalha usuário",
+          "description": "Retorna os dados completos de um usuário específico.",
+          "tags": ["Users"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do usuário"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Usuário encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Usuário não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Atualiza usuário",
+          "description": "Atualiza os dados de um usuário. Para alterar a senha, é necessário informar a senha atual.",
+          "tags": ["Users"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do usuário"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome completo do usuário",
+                      "example": "João Silva Santos"
+                    },
+                    "email": { 
+                      "type": "string", 
+                      "format": "email",
+                      "description": "Email do usuário",
+                      "example": "joao.santos@email.com"
+                    },
+                    "oldPassword": { 
+                      "type": "string",
+                      "description": "Senha atual (obrigatório para alterar senha)",
+                      "example": "123456"
+                    },
+                    "password": { 
+                      "type": "string",
+                      "description": "Nova senha (mínimo 6 caracteres)",
+                      "example": "654321"
+                    },
+                    "confirmPassword": { 
+                      "type": "string",
+                      "description": "Confirmação da nova senha",
+                      "example": "654321"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { 
+              "description": "Usuário atualizado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Usuário não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Remove usuário",
+          "description": "Remove um usuário do sistema permanentemente.",
+          "tags": ["Users"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do usuário"
+            }
+          ],
+          "responses": {
+            "204": { 
+              "description": "Usuário removido com sucesso"
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Usuário não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customers": {
+        "get": {
+          "summary": "Lista clientes",
+          "description": "Retorna uma lista de clientes com filtros opcionais e paginação.",
+          "tags": ["Customers"],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "name",
+              "schema": { "type": "string" },
+              "description": "Filtrar por nome do cliente (busca parcial)"
+            },
+            {
+              "in": "query",
+              "name": "status",
+              "schema": { 
+                "type": "string",
+                "enum": ["ACTIVE", "ARCHIVED"]
+              },
+              "description": "Filtrar por status do cliente"
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "schema": { "type": "integer", "default": 1 },
+              "description": "Número da página"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": { "type": "integer", "default": 10 },
+              "description": "Quantidade de itens por página"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Lista de clientes",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "customers": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Customer"
+                        }
+                      },
+                      "pagination": {
+                        "type": "object",
+                        "properties": {
+                          "page": { "type": "integer" },
+                          "limit": { "type": "integer" },
+                          "total": { "type": "integer" },
+                          "pages": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Cria cliente",
+          "description": "Cria um novo cliente no sistema.",
+          "tags": ["Customers"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["name"],
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome da empresa/cliente",
+                      "example": "Empresa ABC Ltda"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Email do cliente",
+                      "example": "contato@empresaabc.com"
+                    },
+                    "status": { 
+                      "type": "string", 
+                      "enum": ["ACTIVE", "ARCHIVED"],
+                      "description": "Status do cliente",
+                      "example": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": { 
+              "description": "Cliente criado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Customer"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customers/{id}": {
+        "get": {
+          "summary": "Detalha um cliente",
+          "description": "Retorna os dados completos de um cliente específico.",
+          "tags": ["Customers"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Cliente encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Customer"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Atualiza cliente",
+          "description": "Atualiza os dados de um cliente existente.",
+          "tags": ["Customers"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome da empresa/cliente",
+                      "example": "Empresa ABC Ltda - Atualizada"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Email do cliente",
+                      "example": "novo@empresaabc.com"
+                    },
+                    "status": { 
+                      "type": "string",
+                      "enum": ["ACTIVE", "ARCHIVED"],
+                      "description": "Status do cliente",
+                      "example": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { 
+              "description": "Cliente atualizado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Customer"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Remove cliente",
+          "description": "Remove um cliente do sistema permanentemente.",
+          "tags": ["Customers"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            }
+          ],
+          "responses": {
+            "204": { 
+              "description": "Cliente removido com sucesso"
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customers/{customer_id}/contacts": {
+        "get": {
+          "summary": "Lista contatos de um cliente",
+          "description": "Retorna uma lista de contatos de um cliente específico com filtros opcionais.",
+          "tags": ["Contacts"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "customer_id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            },
+            {
+              "in": "query",
+              "name": "status",
+              "schema": { 
+                "type": "string",
+                "enum": ["ACTIVE", "ARCHIVED"]
+              },
+              "description": "Filtrar por status do contato"
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "schema": { "type": "integer", "default": 1 },
+              "description": "Número da página"
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": { "type": "integer", "default": 10 },
+              "description": "Quantidade de itens por página"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Lista de contatos",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "contacts": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Contact"
+                        }
+                      },
+                      "pagination": {
+                        "type": "object",
+                        "properties": {
+                          "page": { "type": "integer" },
+                          "limit": { "type": "integer" },
+                          "total": { "type": "integer" },
+                          "pages": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Cria contato",
+          "description": "Cria um novo contato para um cliente específico.",
+          "tags": ["Contacts"],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "customer_id",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["name", "email"],
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome do contato",
+                      "example": "Maria Santos"
+                    },
+                    "email": { 
+                      "type": "string", 
+                      "format": "email",
+                      "description": "Email do contato",
+                      "example": "maria@empresaabc.com"
+                    },
+                    "phone": { 
+                      "type": "string",
+                      "description": "Telefone do contato",
+                      "example": "(11) 99999-9999"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": { 
+              "description": "Contato criado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/customers/{customer_id}/contacts/{id}": {
+        "get": {
+          "summary": "Detalha contato",
+          "description": "Retorna os dados completos de um contato específico.",
+          "tags": ["Contacts"],
+          "parameters": [
+            { 
+              "in": "path", 
+              "name": "customer_id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            },
+            { 
+              "in": "path", 
+              "name": "id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do contato"
+            }
+          ],
+          "responses": {
+            "200": { 
+              "description": "Contato encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Contato ou cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Atualiza contato",
+          "description": "Atualiza os dados de um contato existente.",
+          "tags": ["Contacts"],
+          "parameters": [
+            { 
+              "in": "path", 
+              "name": "customer_id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            },
+            { 
+              "in": "path", 
+              "name": "id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do contato"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": { 
+                      "type": "string",
+                      "description": "Nome do contato",
+                      "example": "Maria Santos Silva"
+                    },
+                    "email": { 
+                      "type": "string", 
+                      "format": "email",
+                      "description": "Email do contato",
+                      "example": "maria.silva@empresaabc.com"
+                    },
+                    "phone": { 
+                      "type": "string",
+                      "description": "Telefone do contato",
+                      "example": "(11) 88888-8888"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { 
+              "description": "Contato atualizado com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro de validação",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Contato ou cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Remove contato",
+          "description": "Remove um contato do sistema permanentemente.",
+          "tags": ["Contacts"],
+          "parameters": [
+            { 
+              "in": "path", 
+              "name": "customer_id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do cliente"
+            },
+            { 
+              "in": "path", 
+              "name": "id", 
+              "required": true, 
+              "schema": { "type": "integer" },
+              "description": "ID único do contato"
+            }
+          ],
+          "responses": {
+            "204": { 
+              "description": "Contato removido com sucesso"
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": { 
+              "description": "Contato ou cliente não encontrado",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/files": {
+        "post": {
+          "summary": "Upload de arquivo",
+          "description": "Faz upload de um arquivo para o servidor. Suporta imagens e documentos.",
+          "tags": ["Files"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "required": ["file"],
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "Arquivo para upload (imagens: jpg, jpeg, png, gif; documentos: pdf, doc, docx, txt)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": { 
+              "description": "Arquivo salvo com sucesso",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/File"
+                  }
+                }
+              }
+            },
+            "400": { 
+              "description": "Erro no upload",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token de autenticação inválido",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "413": {
+              "description": "Arquivo muito grande",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

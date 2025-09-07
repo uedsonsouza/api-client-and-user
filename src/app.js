@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/node";
 import "./database";
 import "dotenv/config";
 import sentryConfig from "./config/sentry";
-import setupSwagger from "./config/swagger"
+import setupSwagger from "./config/swagger";
 
 class App {
     constructor() {
@@ -30,6 +30,7 @@ class App {
         this.server.use(routes);
         Sentry.setupExpressErrorHandler(this.server);
     }
+    
 
     exceptionHandler() {
         this.server.use(async (err, req, res) => {

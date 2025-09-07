@@ -7,7 +7,7 @@
     "dev": "nodemon ./src/server.js",
     "queue": "nodemon ./src/queue.js",
     "playground": "nodemon ./src/playground.js",
-    "migrate": "sequelize-cli db:migrate --config src/config/database.cjs --migrations-path src/database/migrations",
+    "migrate": "sequelize-cli db:migrate --config src/config/database.js --migrations-path src/database/migrations",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests"
   },
   "dependencies": {

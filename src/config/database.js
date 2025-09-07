@@ -1,6 +1,6 @@
-import 'dotenv/config';
+require('dotenv/config');
 
-export default {
+module.exports = {
     dialect: 'postgres',
     host: process.env.DB_HOST || 'localhost',
     username: process.env.DB_USER || 'user',
@@ -11,4 +11,4 @@ export default {
         underscored: true,
         underscoredAll: true,
     }
-}
+};

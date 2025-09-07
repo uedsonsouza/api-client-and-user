@@ -167,3 +167,7 @@ Listar clientes (autenticado):
 GET /customers?name=acme&status=ACTIVE
 Authorization: Bearer <token>
 ```
+
+## Swagger
+
+![swagger](./public/images/swagger.png)

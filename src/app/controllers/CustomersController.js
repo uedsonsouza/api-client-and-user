@@ -5,7 +5,8 @@ import * as Yup from "yup";
 
 class CustomersController {
     async index(req, res) {
-        const {
+        try {
+            const {
             name,
             email,
             status,
@@ -97,6 +98,10 @@ class CustomersController {
             offset: limit * page - limit,
         });
         return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Internal server error" });
+        }
     }
 
     async show(req, res) {
@@ -120,13 +125,13 @@ class CustomersController {
             return res.status(400).json({ error: "Invalid customer data" });
         }
 
-        if (!schema) {
-            return res.status(500).json({ error: "Error creating customer" });
+        try {
+            const customer = await Customer.create(req.body);
+            return res.status(201).json(customer);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Internal server error" });
         }
-
-        const customer = await Customer.create(req.body);
-
-        return res.status(201).json(customer);
     }
 
     async update(req, res) {
@@ -140,17 +145,18 @@ class CustomersController {
             return res.status(400).json({ error: "Invalid customer data" });
         }
 
-        if (!schema) {
-            return res.status(500).json({ error: "Error creating customer" });
-        }
+        try {
+            const customer = await Customer.findByPk(req.params.id);
+            if (!customer) {
+                return res.status(404).json({ error: "Customer not found" });
+            }
 
-        const customer = await Customer.findByPk(req.params.id);
-        if (!customer) {
-            return res.status(404).json({ error: "Customer not found" });
+            await customer.update(req.body);
+            return res.status(200).json(customer);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Internal server error" });
         }
-
-        await customer.update(req.body);
-        return res.status(200).json(customer);
     }
 
     async destroy(req, res) {
